@@ -65,7 +65,7 @@ struct TimeTraceProfiler {
     E.Duration = steady_clock::now() - E.Start;
 
     // Only include sections longer than TimeTraceGranularity msec.
-    if (duration_cast<microseconds>(E.Duration).count() > TimeTraceGranularity)
+    if (duration_cast<microseconds>(E.Duration).count() >= TimeTraceGranularity)
       Entries.emplace_back(E);
 
     // Track total time taken by each "name", but only the topmost levels of
