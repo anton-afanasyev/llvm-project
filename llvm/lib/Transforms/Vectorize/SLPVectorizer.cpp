@@ -6083,8 +6083,18 @@ bool SLPVectorizerPass::vectorizeStores(ArrayRef<StoreInst *> Stores,
     unsigned MaxElts = MaxVecRegSize / EltSize;
     // FIXME: Is division-by-2 the correct step? Should we assert that the
     // register size is a power-of-2?
+    // We start from 2 * MaxElts to cover the border case
+    // (see D.... for details).
+
+    std::vector<unsigned> Sizes;
+    Sizes.push_back(llvm::PowerOf2Ceil(MaxElts));
+    Sizes.push_back(llvm::PowerOf2Ceil(2 * MaxElts));
+    for (unsigned Size = llvm::PowerOf2Ceil(MaxElts) / 2; Size >= 2; Size /= 2) {
+      Sizes.push_back(Size);
+    }
+
     unsigned StartIdx = 0;
-    for (unsigned Size = llvm::PowerOf2Ceil(MaxElts); Size >= 2; Size /= 2) {
+    for (unsigned Size: Sizes) {
       for (unsigned Cnt = StartIdx, E = Operands.size(); Cnt + Size <= E;) {
         ArrayRef<Value *> Slice = makeArrayRef(Operands).slice(Cnt, Size);
         if (!VectorizedStores.count(Slice.front()) &&

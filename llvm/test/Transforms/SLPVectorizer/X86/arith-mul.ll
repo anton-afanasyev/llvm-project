@@ -2,9 +2,9 @@
 ; RUN: opt < %s -mtriple=x86_64-unknown -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=SSE
 ; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=slm -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=SLM
 ; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=corei7-avx -mattr=-prefer-128-bit -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=AVX --check-prefix=AVX1
-; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=corei7-avx -mattr=+prefer-128-bit -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=SSE
+; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=corei7-avx -mattr=+prefer-128-bit -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=AVX_PREFER128
 ; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=core-avx2 -mattr=-prefer-128-bit -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=AVX --check-prefix=AVX2
-; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=core-avx2 -mattr=+prefer-128-bit -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=SSE
+; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=core-avx2 -mattr=+prefer-128-bit -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=AVX2_PREFER128
 ; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=knl -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=AVX512
 ; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=skx -mattr=-prefer-256-bit -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=AVX512
 ; RUN: opt < %s -mtriple=x86_64-unknown -mcpu=skx -mattr=+prefer-256-bit -basic-aa -slp-vectorizer -S | FileCheck %s --check-prefix=AVX --check-prefix=AVX2
@@ -128,6 +128,41 @@ define void @mul_v8i64() {
 ; AVX1-NEXT:    store i64 [[R7]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 7), align 8
 ; AVX1-NEXT:    ret void
 ;
+; AVX_PREFER128-LABEL: @mul_v8i64(
+; AVX_PREFER128-NEXT:    [[A0:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 0), align 8
+; AVX_PREFER128-NEXT:    [[A1:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 1), align 8
+; AVX_PREFER128-NEXT:    [[A2:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 2), align 8
+; AVX_PREFER128-NEXT:    [[A3:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 3), align 8
+; AVX_PREFER128-NEXT:    [[A4:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 4), align 8
+; AVX_PREFER128-NEXT:    [[A5:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 5), align 8
+; AVX_PREFER128-NEXT:    [[A6:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 6), align 8
+; AVX_PREFER128-NEXT:    [[A7:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 7), align 8
+; AVX_PREFER128-NEXT:    [[B0:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 0), align 8
+; AVX_PREFER128-NEXT:    [[B1:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 1), align 8
+; AVX_PREFER128-NEXT:    [[B2:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 2), align 8
+; AVX_PREFER128-NEXT:    [[B3:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 3), align 8
+; AVX_PREFER128-NEXT:    [[B4:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 4), align 8
+; AVX_PREFER128-NEXT:    [[B5:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 5), align 8
+; AVX_PREFER128-NEXT:    [[B6:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 6), align 8
+; AVX_PREFER128-NEXT:    [[B7:%.*]] = load i64, i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 7), align 8
+; AVX_PREFER128-NEXT:    [[R0:%.*]] = mul i64 [[A0]], [[B0]]
+; AVX_PREFER128-NEXT:    [[R1:%.*]] = mul i64 [[A1]], [[B1]]
+; AVX_PREFER128-NEXT:    [[R2:%.*]] = mul i64 [[A2]], [[B2]]
+; AVX_PREFER128-NEXT:    [[R3:%.*]] = mul i64 [[A3]], [[B3]]
+; AVX_PREFER128-NEXT:    [[R4:%.*]] = mul i64 [[A4]], [[B4]]
+; AVX_PREFER128-NEXT:    [[R5:%.*]] = mul i64 [[A5]], [[B5]]
+; AVX_PREFER128-NEXT:    [[R6:%.*]] = mul i64 [[A6]], [[B6]]
+; AVX_PREFER128-NEXT:    [[R7:%.*]] = mul i64 [[A7]], [[B7]]
+; AVX_PREFER128-NEXT:    store i64 [[R0]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 0), align 8
+; AVX_PREFER128-NEXT:    store i64 [[R1]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 1), align 8
+; AVX_PREFER128-NEXT:    store i64 [[R2]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 2), align 8
+; AVX_PREFER128-NEXT:    store i64 [[R3]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 3), align 8
+; AVX_PREFER128-NEXT:    store i64 [[R4]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 4), align 8
+; AVX_PREFER128-NEXT:    store i64 [[R5]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 5), align 8
+; AVX_PREFER128-NEXT:    store i64 [[R6]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 6), align 8
+; AVX_PREFER128-NEXT:    store i64 [[R7]], i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 7), align 8
+; AVX_PREFER128-NEXT:    ret void
+;
 ; AVX2-LABEL: @mul_v8i64(
 ; AVX2-NEXT:    [[TMP1:%.*]] = load <4 x i64>, <4 x i64>* bitcast ([8 x i64]* @a64 to <4 x i64>*), align 8
 ; AVX2-NEXT:    [[TMP2:%.*]] = load <4 x i64>, <4 x i64>* bitcast (i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 4) to <4 x i64>*), align 8
@@ -138,6 +173,17 @@ define void @mul_v8i64() {
 ; AVX2-NEXT:    store <4 x i64> [[TMP5]], <4 x i64>* bitcast ([8 x i64]* @c64 to <4 x i64>*), align 8
 ; AVX2-NEXT:    store <4 x i64> [[TMP6]], <4 x i64>* bitcast (i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 4) to <4 x i64>*), align 8
 ; AVX2-NEXT:    ret void
+;
+; AVX2_PREFER128-LABEL: @mul_v8i64(
+; AVX2_PREFER128-NEXT:    [[TMP1:%.*]] = load <4 x i64>, <4 x i64>* bitcast ([8 x i64]* @a64 to <4 x i64>*), align 8
+; AVX2_PREFER128-NEXT:    [[TMP2:%.*]] = load <4 x i64>, <4 x i64>* bitcast (i64* getelementptr inbounds ([8 x i64], [8 x i64]* @a64, i32 0, i64 4) to <4 x i64>*), align 8
+; AVX2_PREFER128-NEXT:    [[TMP3:%.*]] = load <4 x i64>, <4 x i64>* bitcast ([8 x i64]* @b64 to <4 x i64>*), align 8
+; AVX2_PREFER128-NEXT:    [[TMP4:%.*]] = load <4 x i64>, <4 x i64>* bitcast (i64* getelementptr inbounds ([8 x i64], [8 x i64]* @b64, i32 0, i64 4) to <4 x i64>*), align 8
+; AVX2_PREFER128-NEXT:    [[TMP5:%.*]] = mul <4 x i64> [[TMP1]], [[TMP3]]
+; AVX2_PREFER128-NEXT:    [[TMP6:%.*]] = mul <4 x i64> [[TMP2]], [[TMP4]]
+; AVX2_PREFER128-NEXT:    store <4 x i64> [[TMP5]], <4 x i64>* bitcast ([8 x i64]* @c64 to <4 x i64>*), align 8
+; AVX2_PREFER128-NEXT:    store <4 x i64> [[TMP6]], <4 x i64>* bitcast (i64* getelementptr inbounds ([8 x i64], [8 x i64]* @c64, i32 0, i64 4) to <4 x i64>*), align 8
+; AVX2_PREFER128-NEXT:    ret void
 ;
 ; AVX512-LABEL: @mul_v8i64(
 ; AVX512-NEXT:    [[TMP1:%.*]] = load <8 x i64>, <8 x i64>* bitcast ([8 x i64]* @a64 to <8 x i64>*), align 8
@@ -230,6 +276,44 @@ define void @mul_v16i32() {
 ; AVX-NEXT:    store <8 x i32> [[TMP5]], <8 x i32>* bitcast ([16 x i32]* @c32 to <8 x i32>*), align 4
 ; AVX-NEXT:    store <8 x i32> [[TMP6]], <8 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @c32, i32 0, i64 8) to <8 x i32>*), align 4
 ; AVX-NEXT:    ret void
+;
+; AVX_PREFER128-LABEL: @mul_v16i32(
+; AVX_PREFER128-NEXT:    [[TMP1:%.*]] = load <4 x i32>, <4 x i32>* bitcast ([16 x i32]* @a32 to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    [[TMP2:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @a32, i32 0, i64 4) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    [[TMP3:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @a32, i32 0, i64 8) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    [[TMP4:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @a32, i32 0, i64 12) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    [[TMP5:%.*]] = load <4 x i32>, <4 x i32>* bitcast ([16 x i32]* @b32 to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    [[TMP6:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @b32, i32 0, i64 4) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    [[TMP7:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @b32, i32 0, i64 8) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    [[TMP8:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @b32, i32 0, i64 12) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    [[TMP9:%.*]] = mul <4 x i32> [[TMP1]], [[TMP5]]
+; AVX_PREFER128-NEXT:    [[TMP10:%.*]] = mul <4 x i32> [[TMP2]], [[TMP6]]
+; AVX_PREFER128-NEXT:    [[TMP11:%.*]] = mul <4 x i32> [[TMP3]], [[TMP7]]
+; AVX_PREFER128-NEXT:    [[TMP12:%.*]] = mul <4 x i32> [[TMP4]], [[TMP8]]
+; AVX_PREFER128-NEXT:    store <4 x i32> [[TMP9]], <4 x i32>* bitcast ([16 x i32]* @c32 to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    store <4 x i32> [[TMP10]], <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @c32, i32 0, i64 4) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    store <4 x i32> [[TMP11]], <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @c32, i32 0, i64 8) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    store <4 x i32> [[TMP12]], <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @c32, i32 0, i64 12) to <4 x i32>*), align 4
+; AVX_PREFER128-NEXT:    ret void
+;
+; AVX2_PREFER128-LABEL: @mul_v16i32(
+; AVX2_PREFER128-NEXT:    [[TMP1:%.*]] = load <4 x i32>, <4 x i32>* bitcast ([16 x i32]* @a32 to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    [[TMP2:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @a32, i32 0, i64 4) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    [[TMP3:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @a32, i32 0, i64 8) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    [[TMP4:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @a32, i32 0, i64 12) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    [[TMP5:%.*]] = load <4 x i32>, <4 x i32>* bitcast ([16 x i32]* @b32 to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    [[TMP6:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @b32, i32 0, i64 4) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    [[TMP7:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @b32, i32 0, i64 8) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    [[TMP8:%.*]] = load <4 x i32>, <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @b32, i32 0, i64 12) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    [[TMP9:%.*]] = mul <4 x i32> [[TMP1]], [[TMP5]]
+; AVX2_PREFER128-NEXT:    [[TMP10:%.*]] = mul <4 x i32> [[TMP2]], [[TMP6]]
+; AVX2_PREFER128-NEXT:    [[TMP11:%.*]] = mul <4 x i32> [[TMP3]], [[TMP7]]
+; AVX2_PREFER128-NEXT:    [[TMP12:%.*]] = mul <4 x i32> [[TMP4]], [[TMP8]]
+; AVX2_PREFER128-NEXT:    store <4 x i32> [[TMP9]], <4 x i32>* bitcast ([16 x i32]* @c32 to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    store <4 x i32> [[TMP10]], <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @c32, i32 0, i64 4) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    store <4 x i32> [[TMP11]], <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @c32, i32 0, i64 8) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    store <4 x i32> [[TMP12]], <4 x i32>* bitcast (i32* getelementptr inbounds ([16 x i32], [16 x i32]* @c32, i32 0, i64 12) to <4 x i32>*), align 4
+; AVX2_PREFER128-NEXT:    ret void
 ;
 ; AVX512-LABEL: @mul_v16i32(
 ; AVX512-NEXT:    [[TMP1:%.*]] = load <16 x i32>, <16 x i32>* bitcast ([16 x i32]* @a32 to <16 x i32>*), align 4
@@ -354,6 +438,44 @@ define void @mul_v32i16() {
 ; AVX-NEXT:    store <16 x i16> [[TMP5]], <16 x i16>* bitcast ([32 x i16]* @c16 to <16 x i16>*), align 2
 ; AVX-NEXT:    store <16 x i16> [[TMP6]], <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 16) to <16 x i16>*), align 2
 ; AVX-NEXT:    ret void
+;
+; AVX_PREFER128-LABEL: @mul_v32i16(
+; AVX_PREFER128-NEXT:    [[TMP1:%.*]] = load <8 x i16>, <8 x i16>* bitcast ([32 x i16]* @a16 to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    [[TMP2:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 8) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    [[TMP3:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 16) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    [[TMP4:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 24) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    [[TMP5:%.*]] = load <8 x i16>, <8 x i16>* bitcast ([32 x i16]* @b16 to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    [[TMP6:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 8) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    [[TMP7:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 16) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    [[TMP8:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 24) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    [[TMP9:%.*]] = mul <8 x i16> [[TMP1]], [[TMP5]]
+; AVX_PREFER128-NEXT:    [[TMP10:%.*]] = mul <8 x i16> [[TMP2]], [[TMP6]]
+; AVX_PREFER128-NEXT:    [[TMP11:%.*]] = mul <8 x i16> [[TMP3]], [[TMP7]]
+; AVX_PREFER128-NEXT:    [[TMP12:%.*]] = mul <8 x i16> [[TMP4]], [[TMP8]]
+; AVX_PREFER128-NEXT:    store <8 x i16> [[TMP9]], <8 x i16>* bitcast ([32 x i16]* @c16 to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    store <8 x i16> [[TMP10]], <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 8) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    store <8 x i16> [[TMP11]], <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 16) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    store <8 x i16> [[TMP12]], <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 24) to <8 x i16>*), align 2
+; AVX_PREFER128-NEXT:    ret void
+;
+; AVX2_PREFER128-LABEL: @mul_v32i16(
+; AVX2_PREFER128-NEXT:    [[TMP1:%.*]] = load <8 x i16>, <8 x i16>* bitcast ([32 x i16]* @a16 to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    [[TMP2:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 8) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    [[TMP3:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 16) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    [[TMP4:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 24) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    [[TMP5:%.*]] = load <8 x i16>, <8 x i16>* bitcast ([32 x i16]* @b16 to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    [[TMP6:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 8) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    [[TMP7:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 16) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    [[TMP8:%.*]] = load <8 x i16>, <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 24) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    [[TMP9:%.*]] = mul <8 x i16> [[TMP1]], [[TMP5]]
+; AVX2_PREFER128-NEXT:    [[TMP10:%.*]] = mul <8 x i16> [[TMP2]], [[TMP6]]
+; AVX2_PREFER128-NEXT:    [[TMP11:%.*]] = mul <8 x i16> [[TMP3]], [[TMP7]]
+; AVX2_PREFER128-NEXT:    [[TMP12:%.*]] = mul <8 x i16> [[TMP4]], [[TMP8]]
+; AVX2_PREFER128-NEXT:    store <8 x i16> [[TMP9]], <8 x i16>* bitcast ([32 x i16]* @c16 to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    store <8 x i16> [[TMP10]], <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 8) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    store <8 x i16> [[TMP11]], <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 16) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    store <8 x i16> [[TMP12]], <8 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 24) to <8 x i16>*), align 2
+; AVX2_PREFER128-NEXT:    ret void
 ;
 ; AVX512-LABEL: @mul_v32i16(
 ; AVX512-NEXT:    [[TMP1:%.*]] = load <32 x i16>, <32 x i16>* bitcast ([32 x i16]* @a16 to <32 x i16>*), align 2
@@ -542,6 +664,44 @@ define void @mul_v64i8() {
 ; AVX-NEXT:    store <32 x i8> [[TMP5]], <32 x i8>* bitcast ([64 x i8]* @c8 to <32 x i8>*), align 1
 ; AVX-NEXT:    store <32 x i8> [[TMP6]], <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 32) to <32 x i8>*), align 1
 ; AVX-NEXT:    ret void
+;
+; AVX_PREFER128-LABEL: @mul_v64i8(
+; AVX_PREFER128-NEXT:    [[TMP1:%.*]] = load <16 x i8>, <16 x i8>* bitcast ([64 x i8]* @a8 to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    [[TMP2:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 16) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    [[TMP3:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 32) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    [[TMP4:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 48) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    [[TMP5:%.*]] = load <16 x i8>, <16 x i8>* bitcast ([64 x i8]* @b8 to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    [[TMP6:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 16) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    [[TMP7:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 32) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    [[TMP8:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 48) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    [[TMP9:%.*]] = mul <16 x i8> [[TMP1]], [[TMP5]]
+; AVX_PREFER128-NEXT:    [[TMP10:%.*]] = mul <16 x i8> [[TMP2]], [[TMP6]]
+; AVX_PREFER128-NEXT:    [[TMP11:%.*]] = mul <16 x i8> [[TMP3]], [[TMP7]]
+; AVX_PREFER128-NEXT:    [[TMP12:%.*]] = mul <16 x i8> [[TMP4]], [[TMP8]]
+; AVX_PREFER128-NEXT:    store <16 x i8> [[TMP9]], <16 x i8>* bitcast ([64 x i8]* @c8 to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    store <16 x i8> [[TMP10]], <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 16) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    store <16 x i8> [[TMP11]], <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 32) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    store <16 x i8> [[TMP12]], <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 48) to <16 x i8>*), align 1
+; AVX_PREFER128-NEXT:    ret void
+;
+; AVX2_PREFER128-LABEL: @mul_v64i8(
+; AVX2_PREFER128-NEXT:    [[TMP1:%.*]] = load <16 x i8>, <16 x i8>* bitcast ([64 x i8]* @a8 to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    [[TMP2:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 16) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    [[TMP3:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 32) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    [[TMP4:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 48) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    [[TMP5:%.*]] = load <16 x i8>, <16 x i8>* bitcast ([64 x i8]* @b8 to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    [[TMP6:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 16) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    [[TMP7:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 32) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    [[TMP8:%.*]] = load <16 x i8>, <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 48) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    [[TMP9:%.*]] = mul <16 x i8> [[TMP1]], [[TMP5]]
+; AVX2_PREFER128-NEXT:    [[TMP10:%.*]] = mul <16 x i8> [[TMP2]], [[TMP6]]
+; AVX2_PREFER128-NEXT:    [[TMP11:%.*]] = mul <16 x i8> [[TMP3]], [[TMP7]]
+; AVX2_PREFER128-NEXT:    [[TMP12:%.*]] = mul <16 x i8> [[TMP4]], [[TMP8]]
+; AVX2_PREFER128-NEXT:    store <16 x i8> [[TMP9]], <16 x i8>* bitcast ([64 x i8]* @c8 to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    store <16 x i8> [[TMP10]], <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 16) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    store <16 x i8> [[TMP11]], <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 32) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    store <16 x i8> [[TMP12]], <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 48) to <16 x i8>*), align 1
+; AVX2_PREFER128-NEXT:    ret void
 ;
 ; AVX512-LABEL: @mul_v64i8(
 ; AVX512-NEXT:    [[TMP1:%.*]] = load <64 x i8>, <64 x i8>* bitcast ([64 x i8]* @a8 to <64 x i8>*), align 1

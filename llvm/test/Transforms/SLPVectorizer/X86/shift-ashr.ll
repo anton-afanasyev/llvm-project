@@ -470,16 +470,27 @@ define void @ashr_v32i16() {
 ; SSE-NEXT:    store i16 [[R31]], i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 31), align 2
 ; SSE-NEXT:    ret void
 ;
-; AVX-LABEL: @ashr_v32i16(
-; AVX-NEXT:    [[TMP1:%.*]] = load <16 x i16>, <16 x i16>* bitcast ([32 x i16]* @a16 to <16 x i16>*), align 2
-; AVX-NEXT:    [[TMP2:%.*]] = load <16 x i16>, <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 16) to <16 x i16>*), align 2
-; AVX-NEXT:    [[TMP3:%.*]] = load <16 x i16>, <16 x i16>* bitcast ([32 x i16]* @b16 to <16 x i16>*), align 2
-; AVX-NEXT:    [[TMP4:%.*]] = load <16 x i16>, <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 16) to <16 x i16>*), align 2
-; AVX-NEXT:    [[TMP5:%.*]] = ashr <16 x i16> [[TMP1]], [[TMP3]]
-; AVX-NEXT:    [[TMP6:%.*]] = ashr <16 x i16> [[TMP2]], [[TMP4]]
-; AVX-NEXT:    store <16 x i16> [[TMP5]], <16 x i16>* bitcast ([32 x i16]* @c16 to <16 x i16>*), align 2
-; AVX-NEXT:    store <16 x i16> [[TMP6]], <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 16) to <16 x i16>*), align 2
-; AVX-NEXT:    ret void
+; AVX1-LABEL: @ashr_v32i16(
+; AVX1-NEXT:    [[TMP1:%.*]] = load <16 x i16>, <16 x i16>* bitcast ([32 x i16]* @a16 to <16 x i16>*), align 2
+; AVX1-NEXT:    [[TMP2:%.*]] = load <16 x i16>, <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX1-NEXT:    [[TMP3:%.*]] = load <16 x i16>, <16 x i16>* bitcast ([32 x i16]* @b16 to <16 x i16>*), align 2
+; AVX1-NEXT:    [[TMP4:%.*]] = load <16 x i16>, <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX1-NEXT:    [[TMP5:%.*]] = ashr <16 x i16> [[TMP1]], [[TMP3]]
+; AVX1-NEXT:    [[TMP6:%.*]] = ashr <16 x i16> [[TMP2]], [[TMP4]]
+; AVX1-NEXT:    store <16 x i16> [[TMP5]], <16 x i16>* bitcast ([32 x i16]* @c16 to <16 x i16>*), align 2
+; AVX1-NEXT:    store <16 x i16> [[TMP6]], <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX1-NEXT:    ret void
+;
+; AVX2-LABEL: @ashr_v32i16(
+; AVX2-NEXT:    [[TMP1:%.*]] = load <16 x i16>, <16 x i16>* bitcast ([32 x i16]* @a16 to <16 x i16>*), align 2
+; AVX2-NEXT:    [[TMP2:%.*]] = load <16 x i16>, <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX2-NEXT:    [[TMP3:%.*]] = load <16 x i16>, <16 x i16>* bitcast ([32 x i16]* @b16 to <16 x i16>*), align 2
+; AVX2-NEXT:    [[TMP4:%.*]] = load <16 x i16>, <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX2-NEXT:    [[TMP5:%.*]] = ashr <16 x i16> [[TMP1]], [[TMP3]]
+; AVX2-NEXT:    [[TMP6:%.*]] = ashr <16 x i16> [[TMP2]], [[TMP4]]
+; AVX2-NEXT:    store <16 x i16> [[TMP5]], <16 x i16>* bitcast ([32 x i16]* @c16 to <16 x i16>*), align 2
+; AVX2-NEXT:    store <16 x i16> [[TMP6]], <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX2-NEXT:    ret void
 ;
 ; AVX512-LABEL: @ashr_v32i16(
 ; AVX512-NEXT:    [[TMP1:%.*]] = load <32 x i16>, <32 x i16>* bitcast ([32 x i16]* @a16 to <32 x i16>*), align 2
@@ -499,6 +510,16 @@ define void @ashr_v32i16() {
 ; XOP-NEXT:    store <16 x i16> [[TMP6]], <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 16) to <16 x i16>*), align 2
 ; XOP-NEXT:    ret void
 ;
+; AVX-LABEL: @ashr_v32i16(
+; AVX-NEXT:    [[TMP1:%.*]] = load <16 x i16>, <16 x i16>* bitcast ([32 x i16]* @a16 to <16 x i16>*), align 2
+; AVX-NEXT:    [[TMP2:%.*]] = load <16 x i16>, <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX-NEXT:    [[TMP3:%.*]] = load <16 x i16>, <16 x i16>* bitcast ([32 x i16]* @b16 to <16 x i16>*), align 2
+; AVX-NEXT:    [[TMP4:%.*]] = load <16 x i16>, <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @b16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX-NEXT:    [[TMP5:%.*]] = ashr <16 x i16> [[TMP1]], [[TMP3]]
+; AVX-NEXT:    [[TMP6:%.*]] = ashr <16 x i16> [[TMP2]], [[TMP4]]
+; AVX-NEXT:    store <16 x i16> [[TMP5]], <16 x i16>* bitcast ([32 x i16]* @c16 to <16 x i16>*), align 2
+; AVX-NEXT:    store <16 x i16> [[TMP6]], <16 x i16>* bitcast (i16* getelementptr inbounds ([32 x i16], [32 x i16]* @c16, i32 0, i64 16) to <16 x i16>*), align 2
+; AVX-NEXT:    ret void
   %a0  = load i16, i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 0 ), align 2
   %a1  = load i16, i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 1 ), align 2
   %a2  = load i16, i16* getelementptr inbounds ([32 x i16], [32 x i16]* @a16, i32 0, i64 2 ), align 2
@@ -650,16 +671,27 @@ define void @ashr_v64i8() {
 ; SSE-NEXT:    store <16 x i8> [[TMP12]], <16 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 48) to <16 x i8>*), align 1
 ; SSE-NEXT:    ret void
 ;
-; AVX-LABEL: @ashr_v64i8(
-; AVX-NEXT:    [[TMP1:%.*]] = load <32 x i8>, <32 x i8>* bitcast ([64 x i8]* @a8 to <32 x i8>*), align 1
-; AVX-NEXT:    [[TMP2:%.*]] = load <32 x i8>, <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 32) to <32 x i8>*), align 1
-; AVX-NEXT:    [[TMP3:%.*]] = load <32 x i8>, <32 x i8>* bitcast ([64 x i8]* @b8 to <32 x i8>*), align 1
-; AVX-NEXT:    [[TMP4:%.*]] = load <32 x i8>, <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 32) to <32 x i8>*), align 1
-; AVX-NEXT:    [[TMP5:%.*]] = ashr <32 x i8> [[TMP1]], [[TMP3]]
-; AVX-NEXT:    [[TMP6:%.*]] = ashr <32 x i8> [[TMP2]], [[TMP4]]
-; AVX-NEXT:    store <32 x i8> [[TMP5]], <32 x i8>* bitcast ([64 x i8]* @c8 to <32 x i8>*), align 1
-; AVX-NEXT:    store <32 x i8> [[TMP6]], <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 32) to <32 x i8>*), align 1
-; AVX-NEXT:    ret void
+; AVX1-LABEL: @ashr_v64i8(
+; AVX1-NEXT:    [[TMP1:%.*]] = load <32 x i8>, <32 x i8>* bitcast ([64 x i8]* @a8 to <32 x i8>*), align 1
+; AVX1-NEXT:    [[TMP2:%.*]] = load <32 x i8>, <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX1-NEXT:    [[TMP3:%.*]] = load <32 x i8>, <32 x i8>* bitcast ([64 x i8]* @b8 to <32 x i8>*), align 1
+; AVX1-NEXT:    [[TMP4:%.*]] = load <32 x i8>, <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX1-NEXT:    [[TMP5:%.*]] = ashr <32 x i8> [[TMP1]], [[TMP3]]
+; AVX1-NEXT:    [[TMP6:%.*]] = ashr <32 x i8> [[TMP2]], [[TMP4]]
+; AVX1-NEXT:    store <32 x i8> [[TMP5]], <32 x i8>* bitcast ([64 x i8]* @c8 to <32 x i8>*), align 1
+; AVX1-NEXT:    store <32 x i8> [[TMP6]], <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX1-NEXT:    ret void
+;
+; AVX2-LABEL: @ashr_v64i8(
+; AVX2-NEXT:    [[TMP1:%.*]] = load <32 x i8>, <32 x i8>* bitcast ([64 x i8]* @a8 to <32 x i8>*), align 1
+; AVX2-NEXT:    [[TMP2:%.*]] = load <32 x i8>, <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX2-NEXT:    [[TMP3:%.*]] = load <32 x i8>, <32 x i8>* bitcast ([64 x i8]* @b8 to <32 x i8>*), align 1
+; AVX2-NEXT:    [[TMP4:%.*]] = load <32 x i8>, <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX2-NEXT:    [[TMP5:%.*]] = ashr <32 x i8> [[TMP1]], [[TMP3]]
+; AVX2-NEXT:    [[TMP6:%.*]] = ashr <32 x i8> [[TMP2]], [[TMP4]]
+; AVX2-NEXT:    store <32 x i8> [[TMP5]], <32 x i8>* bitcast ([64 x i8]* @c8 to <32 x i8>*), align 1
+; AVX2-NEXT:    store <32 x i8> [[TMP6]], <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX2-NEXT:    ret void
 ;
 ; AVX512-LABEL: @ashr_v64i8(
 ; AVX512-NEXT:    [[TMP1:%.*]] = load <64 x i8>, <64 x i8>* bitcast ([64 x i8]* @a8 to <64 x i8>*), align 1
@@ -679,6 +711,16 @@ define void @ashr_v64i8() {
 ; XOP-NEXT:    store <32 x i8> [[TMP6]], <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 32) to <32 x i8>*), align 1
 ; XOP-NEXT:    ret void
 ;
+; AVX-LABEL: @ashr_v64i8(
+; AVX-NEXT:    [[TMP1:%.*]] = load <32 x i8>, <32 x i8>* bitcast ([64 x i8]* @a8 to <32 x i8>*), align 1
+; AVX-NEXT:    [[TMP2:%.*]] = load <32 x i8>, <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX-NEXT:    [[TMP3:%.*]] = load <32 x i8>, <32 x i8>* bitcast ([64 x i8]* @b8 to <32 x i8>*), align 1
+; AVX-NEXT:    [[TMP4:%.*]] = load <32 x i8>, <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @b8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX-NEXT:    [[TMP5:%.*]] = ashr <32 x i8> [[TMP1]], [[TMP3]]
+; AVX-NEXT:    [[TMP6:%.*]] = ashr <32 x i8> [[TMP2]], [[TMP4]]
+; AVX-NEXT:    store <32 x i8> [[TMP5]], <32 x i8>* bitcast ([64 x i8]* @c8 to <32 x i8>*), align 1
+; AVX-NEXT:    store <32 x i8> [[TMP6]], <32 x i8>* bitcast (i8* getelementptr inbounds ([64 x i8], [64 x i8]* @c8, i32 0, i64 32) to <32 x i8>*), align 1
+; AVX-NEXT:    ret void
   %a0  = load i8, i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 0 ), align 1
   %a1  = load i8, i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 1 ), align 1
   %a2  = load i8, i8* getelementptr inbounds ([64 x i8], [64 x i8]* @a8, i32 0, i64 2 ), align 1

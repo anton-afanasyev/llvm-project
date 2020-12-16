@@ -11,16 +11,9 @@
 
 define void @foo() {
 ; SSE-LABEL: @foo(
-; SSE-NEXT:    [[TMP1:%.*]] = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @b, i64 0, i64 0), align 16
-; SSE-NEXT:    store i32 [[TMP1]], i32* getelementptr inbounds ([8 x i32], [8 x i32]* @a, i64 0, i64 0), align 16
-; SSE-NEXT:    [[TMP2:%.*]] = load i32, i32* getelementptr inbounds ([8 x i32], [8 x i32]* @b, i64 0, i64 2), align 8
-; SSE-NEXT:    store i32 [[TMP2]], i32* getelementptr inbounds ([8 x i32], [8 x i32]* @a, i64 0, i64 1), align 4
-; SSE-NEXT:    store i32 [[TMP1]], i32* getelementptr inbounds ([8 x i32], [8 x i32]* @a, i64 0, i64 2), align 8
-; SSE-NEXT:    store i32 [[TMP2]], i32* getelementptr inbounds ([8 x i32], [8 x i32]* @a, i64 0, i64 3), align 4
-; SSE-NEXT:    store i32 [[TMP1]], i32* getelementptr inbounds ([8 x i32], [8 x i32]* @a, i64 0, i64 4), align 16
-; SSE-NEXT:    store i32 [[TMP2]], i32* getelementptr inbounds ([8 x i32], [8 x i32]* @a, i64 0, i64 5), align 4
-; SSE-NEXT:    store i32 [[TMP1]], i32* getelementptr inbounds ([8 x i32], [8 x i32]* @a, i64 0, i64 6), align 8
-; SSE-NEXT:    store i32 [[TMP2]], i32* getelementptr inbounds ([8 x i32], [8 x i32]* @a, i64 0, i64 7), align 4
+; SSE-NEXT:    [[TMP1:%.*]] = call <2 x i32> @llvm.masked.gather.v2i32.v2p0i32(<2 x i32*> <i32* getelementptr inbounds ([8 x i32], [8 x i32]* @b, i64 0, i64 0), i32* getelementptr inbounds ([8 x i32], [8 x i32]* @b, i64 0, i64 2)>, i32 8, <2 x i1> <i1 true, i1 true>, <2 x i32> undef)
+; SSE-NEXT:    [[SHUFFLE:%.*]] = shufflevector <2 x i32> [[TMP1]], <2 x i32> undef, <8 x i32> <i32 0, i32 1, i32 0, i32 1, i32 0, i32 1, i32 0, i32 1>
+; SSE-NEXT:    store <8 x i32> [[SHUFFLE]], <8 x i32>* bitcast ([8 x i32]* @a to <8 x i32>*), align 16
 ; SSE-NEXT:    ret void
 ;
 ; AVX-LABEL: @foo(
