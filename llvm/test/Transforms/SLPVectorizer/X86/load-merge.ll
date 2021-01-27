@@ -116,12 +116,15 @@ define <4 x float> @PR16739_byval(<4 x float>* nocapture readonly dereferenceabl
 ; CHECK-NEXT:    [[T7:%.*]] = insertelement <4 x float> undef, float [[T6]], i32 0
 ; CHECK-NEXT:    [[T8:%.*]] = lshr i64 [[T1]], 32
 ; CHECK-NEXT:    [[T9:%.*]] = trunc i64 [[T8]] to i32
-; CHECK-NEXT:    [[T10:%.*]] = bitcast i32 [[T9]] to float
-; CHECK-NEXT:    [[T11:%.*]] = insertelement <4 x float> [[T7]], float [[T10]], i32 1
 ; CHECK-NEXT:    [[T12:%.*]] = trunc i64 [[T4]] to i32
-; CHECK-NEXT:    [[T13:%.*]] = bitcast i32 [[T12]] to float
-; CHECK-NEXT:    [[T14:%.*]] = insertelement <4 x float> [[T11]], float [[T13]], i32 2
-; CHECK-NEXT:    [[T15:%.*]] = insertelement <4 x float> [[T14]], float [[T13]], i32 3
+; CHECK-NEXT:    [[TMP1:%.*]] = insertelement <2 x i32> poison, i32 [[T9]], i32 0
+; CHECK-NEXT:    [[TMP2:%.*]] = insertelement <2 x i32> [[TMP1]], i32 [[T12]], i32 1
+; CHECK-NEXT:    [[TMP3:%.*]] = bitcast <2 x i32> [[TMP2]] to <2 x float>
+; CHECK-NEXT:    [[TMP4:%.*]] = extractelement <2 x float> [[TMP3]], i32 0
+; CHECK-NEXT:    [[T11:%.*]] = insertelement <4 x float> [[T7]], float [[TMP4]], i32 1
+; CHECK-NEXT:    [[TMP5:%.*]] = extractelement <2 x float> [[TMP3]], i32 1
+; CHECK-NEXT:    [[T14:%.*]] = insertelement <4 x float> [[T11]], float [[TMP5]], i32 2
+; CHECK-NEXT:    [[T15:%.*]] = insertelement <4 x float> [[T14]], float [[TMP5]], i32 3
 ; CHECK-NEXT:    ret <4 x float> [[T15]]
 ;
   %t0 = bitcast <4 x float>* %x to i64*

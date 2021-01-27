@@ -175,43 +175,31 @@ define void @gather_load_3(i32* noalias nocapture %0, i32* noalias nocapture rea
 ;
 ; AVX-LABEL: @gather_load_3(
 ; AVX-NEXT:    [[TMP3:%.*]] = load i32, i32* [[TMP1:%.*]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP4:%.*]] = add i32 [[TMP3]], 1
-; AVX-NEXT:    [[TMP5:%.*]] = getelementptr inbounds i32, i32* [[TMP0:%.*]], i64 1
-; AVX-NEXT:    store i32 [[TMP4]], i32* [[TMP0]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP6:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 11
+; AVX-NEXT:    [[TMP4:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 11
+; AVX-NEXT:    [[TMP5:%.*]] = load i32, i32* [[TMP4]], align 4, [[TBAA0]]
+; AVX-NEXT:    [[TMP6:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 4
 ; AVX-NEXT:    [[TMP7:%.*]] = load i32, i32* [[TMP6]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP8:%.*]] = add i32 [[TMP7]], 2
-; AVX-NEXT:    [[TMP9:%.*]] = getelementptr inbounds i32, i32* [[TMP0]], i64 2
-; AVX-NEXT:    store i32 [[TMP8]], i32* [[TMP5]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP10:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 4
+; AVX-NEXT:    [[TMP8:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 15
+; AVX-NEXT:    [[TMP9:%.*]] = load i32, i32* [[TMP8]], align 4, [[TBAA0]]
+; AVX-NEXT:    [[TMP10:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 18
 ; AVX-NEXT:    [[TMP11:%.*]] = load i32, i32* [[TMP10]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP12:%.*]] = add i32 [[TMP11]], 3
-; AVX-NEXT:    [[TMP13:%.*]] = getelementptr inbounds i32, i32* [[TMP0]], i64 3
-; AVX-NEXT:    store i32 [[TMP12]], i32* [[TMP9]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP14:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 15
+; AVX-NEXT:    [[TMP12:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 9
+; AVX-NEXT:    [[TMP13:%.*]] = load i32, i32* [[TMP12]], align 4, [[TBAA0]]
+; AVX-NEXT:    [[TMP14:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 6
 ; AVX-NEXT:    [[TMP15:%.*]] = load i32, i32* [[TMP14]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP16:%.*]] = add i32 [[TMP15]], 4
-; AVX-NEXT:    [[TMP17:%.*]] = getelementptr inbounds i32, i32* [[TMP0]], i64 4
-; AVX-NEXT:    store i32 [[TMP16]], i32* [[TMP13]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP18:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 18
-; AVX-NEXT:    [[TMP19:%.*]] = load i32, i32* [[TMP18]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP20:%.*]] = add i32 [[TMP19]], 1
-; AVX-NEXT:    [[TMP21:%.*]] = getelementptr inbounds i32, i32* [[TMP0]], i64 5
-; AVX-NEXT:    store i32 [[TMP20]], i32* [[TMP17]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP22:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 9
-; AVX-NEXT:    [[TMP23:%.*]] = load i32, i32* [[TMP22]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP24:%.*]] = add i32 [[TMP23]], 2
-; AVX-NEXT:    [[TMP25:%.*]] = getelementptr inbounds i32, i32* [[TMP0]], i64 6
-; AVX-NEXT:    store i32 [[TMP24]], i32* [[TMP21]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP26:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 6
-; AVX-NEXT:    [[TMP27:%.*]] = load i32, i32* [[TMP26]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP28:%.*]] = add i32 [[TMP27]], 3
-; AVX-NEXT:    [[TMP29:%.*]] = getelementptr inbounds i32, i32* [[TMP0]], i64 7
-; AVX-NEXT:    store i32 [[TMP28]], i32* [[TMP25]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP30:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 21
-; AVX-NEXT:    [[TMP31:%.*]] = load i32, i32* [[TMP30]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[TMP32:%.*]] = add i32 [[TMP31]], 4
-; AVX-NEXT:    store i32 [[TMP32]], i32* [[TMP29]], align 4, [[TBAA0]]
+; AVX-NEXT:    [[TMP16:%.*]] = getelementptr inbounds i32, i32* [[TMP1]], i64 21
+; AVX-NEXT:    [[TMP17:%.*]] = load i32, i32* [[TMP16]], align 4, [[TBAA0]]
+; AVX-NEXT:    [[TMP18:%.*]] = insertelement <8 x i32> poison, i32 [[TMP3]], i32 0
+; AVX-NEXT:    [[TMP19:%.*]] = insertelement <8 x i32> [[TMP18]], i32 [[TMP5]], i32 1
+; AVX-NEXT:    [[TMP20:%.*]] = insertelement <8 x i32> [[TMP19]], i32 [[TMP7]], i32 2
+; AVX-NEXT:    [[TMP21:%.*]] = insertelement <8 x i32> [[TMP20]], i32 [[TMP9]], i32 3
+; AVX-NEXT:    [[TMP22:%.*]] = insertelement <8 x i32> [[TMP21]], i32 [[TMP11]], i32 4
+; AVX-NEXT:    [[TMP23:%.*]] = insertelement <8 x i32> [[TMP22]], i32 [[TMP13]], i32 5
+; AVX-NEXT:    [[TMP24:%.*]] = insertelement <8 x i32> [[TMP23]], i32 [[TMP15]], i32 6
+; AVX-NEXT:    [[TMP25:%.*]] = insertelement <8 x i32> [[TMP24]], i32 [[TMP17]], i32 7
+; AVX-NEXT:    [[TMP26:%.*]] = add <8 x i32> [[TMP25]], <i32 1, i32 2, i32 3, i32 4, i32 1, i32 2, i32 3, i32 4>
+; AVX-NEXT:    [[TMP27:%.*]] = bitcast i32* [[TMP0:%.*]] to <8 x i32>*
+; AVX-NEXT:    store <8 x i32> [[TMP26]], <8 x i32>* [[TMP27]], align 4, [[TBAA0]]
 ; AVX-NEXT:    ret void
 ;
 ; AVX2-LABEL: @gather_load_3(
@@ -356,19 +344,12 @@ define void @gather_load_4(i32* noalias nocapture %t0, i32* noalias nocapture re
 ; SSE-NEXT:    ret void
 ;
 ; AVX-LABEL: @gather_load_4(
-; AVX-NEXT:    [[T5:%.*]] = getelementptr inbounds i32, i32* [[T0:%.*]], i64 1
 ; AVX-NEXT:    [[T6:%.*]] = getelementptr inbounds i32, i32* [[T1:%.*]], i64 11
-; AVX-NEXT:    [[T9:%.*]] = getelementptr inbounds i32, i32* [[T0]], i64 2
 ; AVX-NEXT:    [[T10:%.*]] = getelementptr inbounds i32, i32* [[T1]], i64 4
-; AVX-NEXT:    [[T13:%.*]] = getelementptr inbounds i32, i32* [[T0]], i64 3
 ; AVX-NEXT:    [[T14:%.*]] = getelementptr inbounds i32, i32* [[T1]], i64 15
-; AVX-NEXT:    [[T17:%.*]] = getelementptr inbounds i32, i32* [[T0]], i64 4
 ; AVX-NEXT:    [[T18:%.*]] = getelementptr inbounds i32, i32* [[T1]], i64 18
-; AVX-NEXT:    [[T21:%.*]] = getelementptr inbounds i32, i32* [[T0]], i64 5
 ; AVX-NEXT:    [[T22:%.*]] = getelementptr inbounds i32, i32* [[T1]], i64 9
-; AVX-NEXT:    [[T25:%.*]] = getelementptr inbounds i32, i32* [[T0]], i64 6
 ; AVX-NEXT:    [[T26:%.*]] = getelementptr inbounds i32, i32* [[T1]], i64 6
-; AVX-NEXT:    [[T29:%.*]] = getelementptr inbounds i32, i32* [[T0]], i64 7
 ; AVX-NEXT:    [[T30:%.*]] = getelementptr inbounds i32, i32* [[T1]], i64 21
 ; AVX-NEXT:    [[T3:%.*]] = load i32, i32* [[T1]], align 4, [[TBAA0]]
 ; AVX-NEXT:    [[T7:%.*]] = load i32, i32* [[T6]], align 4, [[TBAA0]]
@@ -378,22 +359,17 @@ define void @gather_load_4(i32* noalias nocapture %t0, i32* noalias nocapture re
 ; AVX-NEXT:    [[T23:%.*]] = load i32, i32* [[T22]], align 4, [[TBAA0]]
 ; AVX-NEXT:    [[T27:%.*]] = load i32, i32* [[T26]], align 4, [[TBAA0]]
 ; AVX-NEXT:    [[T31:%.*]] = load i32, i32* [[T30]], align 4, [[TBAA0]]
-; AVX-NEXT:    [[T4:%.*]] = add i32 [[T3]], 1
-; AVX-NEXT:    [[T8:%.*]] = add i32 [[T7]], 2
-; AVX-NEXT:    [[T12:%.*]] = add i32 [[T11]], 3
-; AVX-NEXT:    [[T16:%.*]] = add i32 [[T15]], 4
-; AVX-NEXT:    [[T20:%.*]] = add i32 [[T19]], 1
-; AVX-NEXT:    [[T24:%.*]] = add i32 [[T23]], 2
-; AVX-NEXT:    [[T28:%.*]] = add i32 [[T27]], 3
-; AVX-NEXT:    [[T32:%.*]] = add i32 [[T31]], 4
-; AVX-NEXT:    store i32 [[T4]], i32* [[T0]], align 4, [[TBAA0]]
-; AVX-NEXT:    store i32 [[T8]], i32* [[T5]], align 4, [[TBAA0]]
-; AVX-NEXT:    store i32 [[T12]], i32* [[T9]], align 4, [[TBAA0]]
-; AVX-NEXT:    store i32 [[T16]], i32* [[T13]], align 4, [[TBAA0]]
-; AVX-NEXT:    store i32 [[T20]], i32* [[T17]], align 4, [[TBAA0]]
-; AVX-NEXT:    store i32 [[T24]], i32* [[T21]], align 4, [[TBAA0]]
-; AVX-NEXT:    store i32 [[T28]], i32* [[T25]], align 4, [[TBAA0]]
-; AVX-NEXT:    store i32 [[T32]], i32* [[T29]], align 4, [[TBAA0]]
+; AVX-NEXT:    [[TMP1:%.*]] = insertelement <8 x i32> poison, i32 [[T3]], i32 0
+; AVX-NEXT:    [[TMP2:%.*]] = insertelement <8 x i32> [[TMP1]], i32 [[T7]], i32 1
+; AVX-NEXT:    [[TMP3:%.*]] = insertelement <8 x i32> [[TMP2]], i32 [[T11]], i32 2
+; AVX-NEXT:    [[TMP4:%.*]] = insertelement <8 x i32> [[TMP3]], i32 [[T15]], i32 3
+; AVX-NEXT:    [[TMP5:%.*]] = insertelement <8 x i32> [[TMP4]], i32 [[T19]], i32 4
+; AVX-NEXT:    [[TMP6:%.*]] = insertelement <8 x i32> [[TMP5]], i32 [[T23]], i32 5
+; AVX-NEXT:    [[TMP7:%.*]] = insertelement <8 x i32> [[TMP6]], i32 [[T27]], i32 6
+; AVX-NEXT:    [[TMP8:%.*]] = insertelement <8 x i32> [[TMP7]], i32 [[T31]], i32 7
+; AVX-NEXT:    [[TMP9:%.*]] = add <8 x i32> [[TMP8]], <i32 1, i32 2, i32 3, i32 4, i32 1, i32 2, i32 3, i32 4>
+; AVX-NEXT:    [[TMP10:%.*]] = bitcast i32* [[T0:%.*]] to <8 x i32>*
+; AVX-NEXT:    store <8 x i32> [[TMP9]], <8 x i32>* [[TMP10]], align 4, [[TBAA0]]
 ; AVX-NEXT:    ret void
 ;
 ; AVX2-LABEL: @gather_load_4(
