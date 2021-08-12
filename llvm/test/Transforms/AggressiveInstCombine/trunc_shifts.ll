@@ -182,7 +182,6 @@ define <2 x i16> @vector_not_commute(<2 x i8> %x) {
 define i16 @shl_not_commute(i8 %x) {
 ; CHECK-LABEL: @shl_not_commute(
 ; CHECK-NEXT:    [[ZEXT:%.*]] = zext i8 [[X:%.*]] to i32
-; CHECK-NEXT:    [[SHL:%.*]] = shl i32 [[ZEXT]], [[ZEXT]]
 ; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[SHL]] to i16
 ; CHECK-NEXT:    ret i16 [[TRUNC]]
 ;
@@ -195,7 +194,6 @@ define i16 @shl_not_commute(i8 %x) {
 define i16 @shl_commute(i8 %x) {
 ; CHECK-LABEL: @shl_commute(
 ; CHECK-NEXT:    [[ZEXT:%.*]] = zext i8 [[X:%.*]] to i32
-; CHECK-NEXT:    [[AND:%.*]] = and i32 [[ZEXT]], 15
 ; CHECK-NEXT:    [[SHL:%.*]] = shl i32 [[ZEXT]], [[AND]]
 ; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[SHL]] to i16
 ; CHECK-NEXT:    ret i16 [[TRUNC]]
