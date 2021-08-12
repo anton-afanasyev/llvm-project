@@ -29,10 +29,12 @@
 #include "llvm/ADT/Statistic.h"
 #include "llvm/Analysis/ConstantFolding.h"
 #include "llvm/Analysis/TargetLibraryInfo.h"
+#include "llvm/Analysis/ValueTracking.h"
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Dominators.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instruction.h"
+#include "llvm/Support/KnownBits.h"
 
 using namespace llvm;
 
@@ -61,6 +63,9 @@ static void getRelevantOperands(Instruction *I, SmallVectorImpl<Value *> &Ops) {
   case Instruction::And:
   case Instruction::Or:
   case Instruction::Xor:
+  case Instruction::Shl:
+  case Instruction::LShr:
+  case Instruction::AShr:
     Ops.push_back(I->getOperand(0));
     Ops.push_back(I->getOperand(1));
     break;
@@ -98,8 +103,32 @@ bool TruncInstCombine::buildTruncExpressionDag() {
       // Worklist and the Stack, and add it to the instruction info map.
       Worklist.pop_back();
       Stack.pop_back();
+
       // Insert I to the Info map.
-      InstInfoMap.insert(std::make_pair(I, Info()));
+      // Initialize MinBitWidth for shift instructions with the number
+      // satisfying conditions:
+      // 1. Shift amount is less than MinBitWidth at least by 1
+      // 2. For right shifts all truncated bits are zeros
+      // Also normalize MinBitWidth not to be greater than source bitwidth.
+      Info InstInfo;
+      unsigned int MinBitWidth = 0;
+      if (I->getOpcode() == Instruction::Shl ||
+          I->getOpcode() == Instruction::LShr ||
+          I->getOpcode() == Instruction::AShr) {
+        KnownBits KnownLHS = computeKnownBits(I->getOperand(0), DL);
+        KnownBits KnownRHS = computeKnownBits(I->getOperand(1), DL);
+        const unsigned int SrcBitWidth = KnownLHS.getBitWidth();
+        if (I->getOpcode() != Instruction::Shl)
+          MinBitWidth = SrcBitWidth - KnownLHS.countMinLeadingZeros();
+        if (I->getOpcode() == Instruction::AShr && MinBitWidth < SrcBitWidth)
+          MinBitWidth++;
+        InstInfo.MinBitWidth =
+            std::max(uint64_t(MinBitWidth),
+                     std::min(KnownRHS.getMaxValue().getZExtValue(),
+                              uint64_t(SrcBitWidth - 1)) +
+                         1);
+      }
+      InstInfoMap.insert(std::make_pair(I, InstInfo));
       continue;
     }
 
@@ -127,6 +156,9 @@ bool TruncInstCombine::buildTruncExpressionDag() {
     case Instruction::And:
     case Instruction::Or:
     case Instruction::Xor:
+    case Instruction::Shl:
+    case Instruction::LShr:
+    case Instruction::AShr:
     case Instruction::Select: {
       SmallVector<Value *, 2> Operands;
       getRelevantOperands(I, Operands);
@@ -137,8 +169,7 @@ bool TruncInstCombine::buildTruncExpressionDag() {
       // TODO: Can handle more cases here:
       // 1. shufflevector, extractelement, insertelement
       // 2. udiv, urem
-      // 3. shl, lshr, ashr
-      // 4. phi node(and loop handling)
+      // 3. phi node(and loop handling)
       // ...
       return false;
     }
@@ -356,10 +387,19 @@ void TruncInstCombine::ReduceExpressionDag(Type *SclTy) {
     case Instruction::Mul:
     case Instruction::And:
     case Instruction::Or:
-    case Instruction::Xor: {
+    case Instruction::Xor:
+    case Instruction::Shl:
+    case Instruction::LShr:
+    case Instruction::AShr: {
       Value *LHS = getReducedOperand(I->getOperand(0), SclTy);
       Value *RHS = getReducedOperand(I->getOperand(1), SclTy);
       Res = Builder.CreateBinOp((Instruction::BinaryOps)Opc, LHS, RHS);
+      // Try to preserve flags, but `shl nsw` is more poisonous
+      // if bitwidth is smaller.
+      if (Opc == Instruction::Shl)
+        cast<Instruction>(Res)->setHasNoUnsignedWrap(I->hasNoUnsignedWrap());
+      if (Opc == Instruction::LShr || Opc == Instruction::AShr)
+        cast<Instruction>(Res)->setIsExact(I->isExact());
       break;
     }
     case Instruction::Select: {

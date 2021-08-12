@@ -3,10 +3,8 @@
 
 define i16 @lshr_trunc_commute(i16 %x) {
 ; CHECK-LABEL: @lshr_trunc_commute(
-; CHECK-NEXT:    [[ZEXT:%.*]] = zext i16 [[X:%.*]] to i32
-; CHECK-NEXT:    [[LSHR:%.*]] = lshr i32 [[ZEXT]], 15
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[LSHR]] to i16
-; CHECK-NEXT:    ret i16 [[TRUNC]]
+; CHECK-NEXT:    [[LSHR:%.*]] = lshr i16 [[X:%.*]], 15
+; CHECK-NEXT:    ret i16 [[LSHR]]
 ;
   %zext = zext i16 %x to i32
   %lshr = lshr i32 %zext, 15
@@ -42,11 +40,9 @@ define i16 @ashr_trunc_not_commute(i16 %x) {
 
 define i16 @ashr_trunc_commute(i16 %x) {
 ; CHECK-LABEL: @ashr_trunc_commute(
-; CHECK-NEXT:    [[ZEXT:%.*]] = zext i16 [[X:%.*]] to i32
-; CHECK-NEXT:    [[AND:%.*]] = and i32 [[ZEXT]], 32767
-; CHECK-NEXT:    [[ASHR:%.*]] = ashr i32 [[AND]], 15
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[ASHR]] to i16
-; CHECK-NEXT:    ret i16 [[TRUNC]]
+; CHECK-NEXT:    [[AND:%.*]] = and i16 [[X:%.*]], 32767
+; CHECK-NEXT:    [[ASHR:%.*]] = ashr i16 [[AND]], 15
+; CHECK-NEXT:    ret i16 [[ASHR]]
 ;
   %zext = zext i16 %x to i32
   %and = and i32 %zext, 32767
@@ -76,14 +72,13 @@ define i16 @var_shift_not_commute(i8 %x, i8 %amt) {
 
 define i16 @var_shift_commute(i8 %x, i8 %amt) {
 ; CHECK-LABEL: @var_shift_commute(
-; CHECK-NEXT:    [[Z:%.*]] = zext i8 [[X:%.*]] to i32
-; CHECK-NEXT:    [[ZA:%.*]] = zext i8 [[AMT:%.*]] to i32
-; CHECK-NEXT:    [[ZA2:%.*]] = and i32 [[ZA]], 15
-; CHECK-NEXT:    [[S:%.*]] = lshr i32 [[Z]], [[ZA2]]
-; CHECK-NEXT:    [[A:%.*]] = add i32 [[S]], [[Z]]
-; CHECK-NEXT:    [[S2:%.*]] = lshr i32 [[A]], 2
-; CHECK-NEXT:    [[T:%.*]] = trunc i32 [[S2]] to i16
-; CHECK-NEXT:    ret i16 [[T]]
+; CHECK-NEXT:    [[Z:%.*]] = zext i8 [[X:%.*]] to i16
+; CHECK-NEXT:    [[ZA:%.*]] = zext i8 [[AMT:%.*]] to i16
+; CHECK-NEXT:    [[ZA2:%.*]] = and i16 [[ZA]], 15
+; CHECK-NEXT:    [[S:%.*]] = lshr i16 [[Z]], [[ZA2]]
+; CHECK-NEXT:    [[A:%.*]] = add i16 [[S]], [[Z]]
+; CHECK-NEXT:    [[S2:%.*]] = lshr i16 [[A]], 2
+; CHECK-NEXT:    ret i16 [[S2]]
 ;
   %z = zext i8 %x to i32
   %za = zext i8 %amt to i32
@@ -97,16 +92,15 @@ define i16 @var_shift_commute(i8 %x, i8 %amt) {
 
 define void @big_dag(i16* %a, i8 %b, i8 %c) {
 ; CHECK-LABEL: @big_dag(
-; CHECK-NEXT:    [[ZEXT1:%.*]] = zext i8 [[B:%.*]] to i32
-; CHECK-NEXT:    [[ZEXT2:%.*]] = zext i8 [[C:%.*]] to i32
-; CHECK-NEXT:    [[ADD1:%.*]] = add i32 [[ZEXT1]], [[ZEXT2]]
-; CHECK-NEXT:    [[SFT1:%.*]] = and i32 [[ADD1]], 15
-; CHECK-NEXT:    [[SHR1:%.*]] = lshr i32 [[ADD1]], [[SFT1]]
-; CHECK-NEXT:    [[ADD2:%.*]] = add i32 [[ADD1]], [[SHR1]]
-; CHECK-NEXT:    [[SFT2:%.*]] = and i32 [[ADD2]], 7
-; CHECK-NEXT:    [[SHR2:%.*]] = lshr i32 [[ADD2]], [[SFT2]]
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[SHR2]] to i16
-; CHECK-NEXT:    store i16 [[TRUNC]], i16* [[A:%.*]], align 2
+; CHECK-NEXT:    [[ZEXT1:%.*]] = zext i8 [[B:%.*]] to i16
+; CHECK-NEXT:    [[ZEXT2:%.*]] = zext i8 [[C:%.*]] to i16
+; CHECK-NEXT:    [[ADD1:%.*]] = add i16 [[ZEXT1]], [[ZEXT2]]
+; CHECK-NEXT:    [[SFT1:%.*]] = and i16 [[ADD1]], 15
+; CHECK-NEXT:    [[SHR1:%.*]] = lshr i16 [[ADD1]], [[SFT1]]
+; CHECK-NEXT:    [[ADD2:%.*]] = add i16 [[ADD1]], [[SHR1]]
+; CHECK-NEXT:    [[SFT2:%.*]] = and i16 [[ADD2]], 7
+; CHECK-NEXT:    [[SHR2:%.*]] = lshr i16 [[ADD2]], [[SFT2]]
+; CHECK-NEXT:    store i16 [[SHR2]], i16* [[A:%.*]], align 2
 ; CHECK-NEXT:    ret void
 ;
   %zext1 = zext i8 %b to i32
@@ -124,13 +118,12 @@ define void @big_dag(i16* %a, i8 %b, i8 %c) {
 
 define <2 x i16> @vector_commute(<2 x i8> %x) {
 ; CHECK-LABEL: @vector_commute(
-; CHECK-NEXT:    [[Z:%.*]] = zext <2 x i8> [[X:%.*]] to <2 x i32>
-; CHECK-NEXT:    [[ZA:%.*]] = and <2 x i32> [[Z]], <i32 7, i32 8>
-; CHECK-NEXT:    [[S:%.*]] = lshr <2 x i32> [[Z]], [[ZA]]
-; CHECK-NEXT:    [[A:%.*]] = add <2 x i32> [[S]], [[Z]]
-; CHECK-NEXT:    [[S2:%.*]] = lshr <2 x i32> [[A]], <i32 4, i32 5>
-; CHECK-NEXT:    [[T:%.*]] = trunc <2 x i32> [[S2]] to <2 x i16>
-; CHECK-NEXT:    ret <2 x i16> [[T]]
+; CHECK-NEXT:    [[Z:%.*]] = zext <2 x i8> [[X:%.*]] to <2 x i16>
+; CHECK-NEXT:    [[ZA:%.*]] = and <2 x i16> [[Z]], <i16 7, i16 8>
+; CHECK-NEXT:    [[S:%.*]] = lshr <2 x i16> [[Z]], [[ZA]]
+; CHECK-NEXT:    [[A:%.*]] = add <2 x i16> [[S]], [[Z]]
+; CHECK-NEXT:    [[S2:%.*]] = lshr <2 x i16> [[A]], <i16 4, i16 5>
+; CHECK-NEXT:    ret <2 x i16> [[S2]]
 ;
   %z = zext <2 x i8> %x to <2 x i32>
   %za = and <2 x i32> %z, <i32 7, i32 8>
@@ -182,6 +175,7 @@ define <2 x i16> @vector_not_commute(<2 x i8> %x) {
 define i16 @shl_not_commute(i8 %x) {
 ; CHECK-LABEL: @shl_not_commute(
 ; CHECK-NEXT:    [[ZEXT:%.*]] = zext i8 [[X:%.*]] to i32
+; CHECK-NEXT:    [[SHL:%.*]] = shl i32 [[ZEXT]], [[ZEXT]]
 ; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[SHL]] to i16
 ; CHECK-NEXT:    ret i16 [[TRUNC]]
 ;
@@ -193,10 +187,10 @@ define i16 @shl_not_commute(i8 %x) {
 
 define i16 @shl_commute(i8 %x) {
 ; CHECK-LABEL: @shl_commute(
-; CHECK-NEXT:    [[ZEXT:%.*]] = zext i8 [[X:%.*]] to i32
-; CHECK-NEXT:    [[SHL:%.*]] = shl i32 [[ZEXT]], [[AND]]
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[SHL]] to i16
-; CHECK-NEXT:    ret i16 [[TRUNC]]
+; CHECK-NEXT:    [[ZEXT:%.*]] = zext i8 [[X:%.*]] to i16
+; CHECK-NEXT:    [[AND:%.*]] = and i16 [[ZEXT]], 15
+; CHECK-NEXT:    [[SHL:%.*]] = shl i16 [[ZEXT]], [[AND]]
+; CHECK-NEXT:    ret i16 [[SHL]]
 ;
   %zext = zext i8 %x to i32
   %and = and i32 %zext, 15
@@ -207,10 +201,8 @@ define i16 @shl_commute(i8 %x) {
 
 define i16 @lshr_exact(i16 %x) {
 ; CHECK-LABEL: @lshr_exact(
-; CHECK-NEXT:    [[ZEXT:%.*]] = zext i16 [[X:%.*]] to i32
-; CHECK-NEXT:    [[LSHR:%.*]] = lshr exact i32 [[ZEXT]], 15
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[LSHR]] to i16
-; CHECK-NEXT:    ret i16 [[TRUNC]]
+; CHECK-NEXT:    [[LSHR:%.*]] = lshr exact i16 [[X:%.*]], 15
+; CHECK-NEXT:    ret i16 [[LSHR]]
 ;
   %zext = zext i16 %x to i32
   %lshr = lshr exact i32 %zext, 15
@@ -220,11 +212,9 @@ define i16 @lshr_exact(i16 %x) {
 
 define i16 @ashr_exact(i16 %x) {
 ; CHECK-LABEL: @ashr_exact(
-; CHECK-NEXT:    [[ZEXT:%.*]] = zext i16 [[X:%.*]] to i32
-; CHECK-NEXT:    [[AND:%.*]] = and i32 [[ZEXT]], 32767
-; CHECK-NEXT:    [[ASHR:%.*]] = ashr exact i32 [[AND]], 15
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc i32 [[ASHR]] to i16
-; CHECK-NEXT:    ret i16 [[TRUNC]]
+; CHECK-NEXT:    [[AND:%.*]] = and i16 [[X:%.*]], 32767
+; CHECK-NEXT:    [[ASHR:%.*]] = ashr exact i16 [[AND]], 15
+; CHECK-NEXT:    ret i16 [[ASHR]]
 ;
   %zext = zext i16 %x to i32
   %and = and i32 %zext, 32767
@@ -235,10 +225,9 @@ define i16 @ashr_exact(i16 %x) {
 
 define i16 @shl_nuw(i8 %x, i8 %sh1) {
 ; CHECK-LABEL: @shl_nuw(
-; CHECK-NEXT:    [[Z:%.*]] = zext i8 [[X:%.*]] to i32
-; CHECK-NEXT:    [[S:%.*]] = shl nuw i32 [[Z]], 8
-; CHECK-NEXT:    [[T:%.*]] = trunc i32 [[S]] to i16
-; CHECK-NEXT:    ret i16 [[T]]
+; CHECK-NEXT:    [[Z:%.*]] = zext i8 [[X:%.*]] to i16
+; CHECK-NEXT:    [[S:%.*]] = shl nuw i16 [[Z]], 8
+; CHECK-NEXT:    ret i16 [[S]]
 ;
   %z = zext i8 %x to i32
   %s = shl nuw i32 %z, 8
@@ -248,10 +237,9 @@ define i16 @shl_nuw(i8 %x, i8 %sh1) {
 
 define i16 @shl_nsw(i8 %x, i8 %sh1) {
 ; CHECK-LABEL: @shl_nsw(
-; CHECK-NEXT:    [[Z:%.*]] = zext i8 [[X:%.*]] to i32
-; CHECK-NEXT:    [[S:%.*]] = shl nsw i32 [[Z]], 8
-; CHECK-NEXT:    [[T:%.*]] = trunc i32 [[S]] to i16
-; CHECK-NEXT:    ret i16 [[T]]
+; CHECK-NEXT:    [[Z:%.*]] = zext i8 [[X:%.*]] to i16
+; CHECK-NEXT:    [[S:%.*]] = shl i16 [[Z]], 8
+; CHECK-NEXT:    ret i16 [[S]]
 ;
   %z = zext i8 %x to i32
   %s = shl nsw i32 %z, 8
