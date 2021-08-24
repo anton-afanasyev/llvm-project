@@ -3,11 +3,10 @@
 
 define <4 x i16> @shuffle(<2 x i8> %a, <2 x i8> %b) {
 ; CHECK-LABEL: @shuffle(
-; CHECK-NEXT:    [[ZEXTA:%.*]] = zext <2 x i8> [[A:%.*]] to <2 x i32>
-; CHECK-NEXT:    [[ZEXTB:%.*]] = zext <2 x i8> [[B:%.*]] to <2 x i32>
-; CHECK-NEXT:    [[SHUF:%.*]] = shufflevector <2 x i32> [[ZEXTA]], <2 x i32> [[ZEXTB]], <4 x i32> <i32 3, i32 2, i32 1, i32 0>
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc <4 x i32> [[SHUF]] to <4 x i16>
-; CHECK-NEXT:    ret <4 x i16> [[TRUNC]]
+; CHECK-NEXT:    [[ZEXTA:%.*]] = zext <2 x i8> [[A:%.*]] to <2 x i16>
+; CHECK-NEXT:    [[ZEXTB:%.*]] = zext <2 x i8> [[B:%.*]] to <2 x i16>
+; CHECK-NEXT:    [[SHUF:%.*]] = shufflevector <2 x i16> [[ZEXTA]], <2 x i16> [[ZEXTB]], <4 x i32> <i32 3, i32 2, i32 1, i32 0>
+; CHECK-NEXT:    ret <4 x i16> [[SHUF]]
 ;
   %zexta = zext <2 x i8> %a to <2 x i32>
   %zextb = zext <2 x i8> %b to <2 x i32>
@@ -20,9 +19,7 @@ define <4 x i16> @shuffle_const(<2 x i8> %a, <2 x i8> %b) {
 ; CHECK-LABEL: @shuffle_const(
 ; CHECK-NEXT:    [[ZEXTA:%.*]] = zext <2 x i8> [[A:%.*]] to <2 x i32>
 ; CHECK-NEXT:    [[ZEXTB:%.*]] = zext <2 x i8> [[B:%.*]] to <2 x i32>
-; CHECK-NEXT:    [[SHUF:%.*]] = shufflevector <2 x i32> <i32 1, i32 2>, <2 x i32> <i32 3, i32 7>, <4 x i32> <i32 3, i32 2, i32 1, i32 0>
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc <4 x i32> [[SHUF]] to <4 x i16>
-; CHECK-NEXT:    ret <4 x i16> [[TRUNC]]
+; CHECK-NEXT:    ret <4 x i16> <i16 7, i16 3, i16 2, i16 1>
 ;
   %zexta = zext <2 x i8> %a to <2 x i32>
   %zextb = zext <2 x i8> %b to <2 x i32>
@@ -33,12 +30,11 @@ define <4 x i16> @shuffle_const(<2 x i8> %a, <2 x i8> %b) {
 
 define <2 x i16> @extract_insert(<2 x i8> %a, <2 x i8> %b) {
 ; CHECK-LABEL: @extract_insert(
-; CHECK-NEXT:    [[ZEXTA:%.*]] = zext <2 x i8> [[A:%.*]] to <2 x i32>
-; CHECK-NEXT:    [[ZEXTB:%.*]] = zext <2 x i8> [[B:%.*]] to <2 x i32>
-; CHECK-NEXT:    [[EXTR:%.*]] = extractelement <2 x i32> [[ZEXTA]], i32 0
-; CHECK-NEXT:    [[INSR:%.*]] = insertelement <2 x i32> [[ZEXTB]], i32 [[EXTR]], i32 1
-; CHECK-NEXT:    [[TRUNC:%.*]] = trunc <2 x i32> [[INSR]] to <2 x i16>
-; CHECK-NEXT:    ret <2 x i16> [[TRUNC]]
+; CHECK-NEXT:    [[ZEXTA:%.*]] = zext <2 x i8> [[A:%.*]] to <2 x i16>
+; CHECK-NEXT:    [[ZEXTB:%.*]] = zext <2 x i8> [[B:%.*]] to <2 x i16>
+; CHECK-NEXT:    [[EXTR:%.*]] = extractelement <2 x i16> [[ZEXTA]], i32 0
+; CHECK-NEXT:    [[INSR:%.*]] = insertelement <2 x i16> [[ZEXTB]], i16 [[EXTR]], i32 1
+; CHECK-NEXT:    ret <2 x i16> [[INSR]]
 ;
   %zexta = zext <2 x i8> %a to <2 x i32>
   %zextb = zext <2 x i8> %b to <2 x i32>

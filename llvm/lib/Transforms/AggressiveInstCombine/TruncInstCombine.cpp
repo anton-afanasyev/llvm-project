@@ -66,8 +66,13 @@ static void getRelevantOperands(Instruction *I, SmallVectorImpl<Value *> &Ops) {
   case Instruction::Shl:
   case Instruction::LShr:
   case Instruction::AShr:
+  case Instruction::InsertElement:
+  case Instruction::ShuffleVector:
     Ops.push_back(I->getOperand(0));
     Ops.push_back(I->getOperand(1));
+    break;
+  case Instruction::ExtractElement:
+    Ops.push_back(I->getOperand(0));
     break;
   case Instruction::Select:
     Ops.push_back(I->getOperand(1));
@@ -135,6 +140,9 @@ bool TruncInstCombine::buildTruncExpressionDag() {
     case Instruction::Shl:
     case Instruction::LShr:
     case Instruction::AShr:
+    case Instruction::InsertElement:
+    case Instruction::ExtractElement:
+    case Instruction::ShuffleVector:
     case Instruction::Select: {
       SmallVector<Value *, 2> Operands;
       getRelevantOperands(I, Operands);
@@ -143,9 +151,8 @@ bool TruncInstCombine::buildTruncExpressionDag() {
     }
     default:
       // TODO: Can handle more cases here:
-      // 1. shufflevector, extractelement, insertelement
-      // 2. udiv, urem
-      // 3. phi node(and loop handling)
+      // 1. udiv, urem
+      // 2. phi node(and loop handling)
       // ...
       return false;
     }
@@ -406,6 +413,26 @@ void TruncInstCombine::ReduceExpressionDag(Type *SclTy) {
       if (auto *PEO = dyn_cast<PossiblyExactOperator>(I))
         if (auto *ResI = dyn_cast<Instruction>(Res))
           ResI->setIsExact(PEO->isExact());
+      break;
+    }
+    case Instruction::ExtractElement: {
+      Value *Vec = getReducedOperand(I->getOperand(0), SclTy);
+      Value *Idx = I->getOperand(1);
+      Res = Builder.CreateExtractElement(Vec, Idx);
+      break;
+    }
+    case Instruction::InsertElement: {
+      Value *Vec = getReducedOperand(I->getOperand(0), SclTy);
+      Value *NewElt = getReducedOperand(I->getOperand(1), SclTy);
+      Value *Idx = I->getOperand(2);
+      Res = Builder.CreateInsertElement(Vec, NewElt, Idx);
+      break;
+    }
+    case Instruction::ShuffleVector: {
+      Value *V1 = getReducedOperand(I->getOperand(0), SclTy);
+      Value *V2 = getReducedOperand(I->getOperand(1), SclTy);
+      Res = Builder.CreateShuffleVector(
+          V1, V2, cast<ShuffleVectorInst>(I)->getShuffleMask());
       break;
     }
     case Instruction::Select: {
