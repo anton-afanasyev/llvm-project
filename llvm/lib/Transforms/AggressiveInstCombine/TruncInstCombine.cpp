@@ -73,6 +73,10 @@ static void getRelevantOperands(Instruction *I, SmallVectorImpl<Value *> &Ops) {
     Ops.push_back(I->getOperand(1));
     Ops.push_back(I->getOperand(2));
     break;
+  case Instruction::PHI:
+    for (unsigned J = 0; J < I->getNumOperands(); J++)
+      Ops.push_back(I->getOperand(J));
+    break;
   default:
     llvm_unreachable("Unreachable!");
   }
@@ -141,11 +145,19 @@ bool TruncInstCombine::buildTruncExpressionDag() {
       append_range(Worklist, Operands);
       break;
     }
+    case Instruction::PHI: {
+      SmallVector<Value *, 2> Operands;
+      getRelevantOperands(I, Operands);
+      for (auto *Op : Operands)
+        // if (auto *OpI = dyn_cast<Instruction>(Op))
+        if (all_of(Stack, [Op](Value *V) { return Op != V; }))
+          Worklist.push_back(Op);
+      break;
+    }
     default:
       // TODO: Can handle more cases here:
       // 1. shufflevector, extractelement, insertelement
       // 2. udiv, urem
-      // 3. phi node(and loop handling)
       // ...
       return false;
     }
@@ -348,6 +360,8 @@ Value *TruncInstCombine::getReducedOperand(Value *V, Type *SclTy) {
 
 void TruncInstCombine::ReduceExpressionDag(Type *SclTy) {
   NumInstrsReduced += InstInfoMap.size();
+  // Pairs of old and new phi-nodes
+  SmallVector<std::pair<Instruction *, Value *>, 2> PHINodes;
   for (auto &Itr : InstInfoMap) { // Forward
     Instruction *I = Itr.first;
     TruncInstCombine::Info &NodeInfo = Itr.second;
@@ -415,6 +429,11 @@ void TruncInstCombine::ReduceExpressionDag(Type *SclTy) {
       Res = Builder.CreateSelect(Op0, LHS, RHS);
       break;
     }
+    case Instruction::PHI: {
+      Res = Builder.CreatePHI(getReducedType(I, SclTy), I->getNumOperands());
+      PHINodes.push_back(std::make_pair(I, Res));
+      break;
+    }
     default:
       llvm_unreachable("Unhandled instruction");
     }
@@ -422,6 +441,15 @@ void TruncInstCombine::ReduceExpressionDag(Type *SclTy) {
     NodeInfo.NewValue = Res;
     if (auto *ResI = dyn_cast<Instruction>(Res))
       ResI->takeName(I);
+  }
+
+  for (auto &Node : PHINodes) {
+    Instruction *I = Node.first;
+    Value *Res = Node.second;
+    for (unsigned J = 0; J < I->getNumOperands(); J++)
+      cast<PHINode>(Res)->addIncoming(
+          getReducedOperand(I->getOperand(J), SclTy),
+          cast<BasicBlock>(cast<PHINode>(I)->getIncomingBlock(J)));
   }
 
   Value *Res = getReducedOperand(CurrentTruncInst->getOperand(0), SclTy);
