@@ -832,6 +832,14 @@ void SCCPInstVisitor::visitCastInst(CastInst &I) {
     ConstantRange Res =
         OpRange.castOp(I.getOpcode(), DL.getTypeSizeInBits(DestTy));
     mergeInValue(LV, &I, ValueLatticeElement::getRange(Res));
+  } else if (OpSt.isOverdefined() && (I.getOpcode() == Instruction::ZExt ||
+                                      I.getOpcode() == Instruction::SExt)) {
+    ConstantRange OpRange = ConstantRange::getFull(
+        I.getOperand(0)->getType()->getScalarSizeInBits());
+    ConstantRange Res =
+        OpRange.castOp(I.getOpcode(), I.getType()->getScalarSizeInBits());
+    mergeInValue(&I,
+                 ValueLatticeElement::getRange(Res, /*MayIncludeUndef=*/false));
   } else if (!OpSt.isUnknownOrUndef())
     markOverdefined(&I);
 }
