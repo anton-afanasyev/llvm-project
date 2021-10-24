@@ -815,9 +815,15 @@ void SCCPInstVisitor::visitCastInst(CastInst &I) {
       return;
     // Propagate constant value
     markConstant(&I, C);
-  } else if (OpSt.isConstantRange() && I.getDestTy()->isIntegerTy()) {
+  } else if ((OpSt.isConstantRange() || OpSt.isOverdefined()) &&
+             I.getDestTy()->isIntegerTy()) {
     auto &LV = getValueState(&I);
-    ConstantRange OpRange = OpSt.getConstantRange();
+    ConstantRange OpRange =
+        OpSt.isConstantRange()
+            ? OpSt.getConstantRange()
+            : ConstantRange::getFull(
+                  I.getOperand(0)->getType()->getScalarSizeInBits());
+
     Type *DestTy = I.getDestTy();
     // Vectors where all elements have the same known constant range are treated
     // as a single constant range in the lattice. When bitcasting such vectors,
