@@ -166,6 +166,7 @@ private:
   bool mergeInValue(Value *V, ValueLatticeElement MergeWithV,
                     ValueLatticeElement::MergeOptions Opts = {
                         /*MayIncludeUndef=*/false, /*CheckWiden=*/false}) {
+    Opts.MayIncludeUndef = false;
     assert(!V->getType()->isStructTy() &&
            "non-structs should use markConstant");
     return mergeInValue(ValueState[V], V, MergeWithV, Opts);
@@ -483,6 +484,7 @@ void SCCPInstVisitor::pushToWorkListMsg(ValueLatticeElement &IV, Value *V) {
 
 bool SCCPInstVisitor::markConstant(ValueLatticeElement &IV, Value *V,
                                    Constant *C, bool MayIncludeUndef) {
+  MayIncludeUndef = false;
   if (!IV.markConstant(C, MayIncludeUndef))
     return false;
   LLVM_DEBUG(dbgs() << "markConstant: " << *C << ": " << *V << '\n');
@@ -998,7 +1000,7 @@ void SCCPInstVisitor::visitBinaryOperator(Instruction &I) {
       // after one of the operands go to overdefined, e.g. due to one operand
       // being a special floating value.
       ValueLatticeElement NewV;
-      NewV.markConstant(C, /*MayIncludeUndef=*/true);
+      NewV.markConstant(C);
       return (void)mergeInValue(&I, NewV);
     }
   }
@@ -1294,7 +1296,7 @@ void SCCPInstVisitor::handleCallResult(CallBase &CB) {
       // unless we have conditions that are always true/false (e.g. icmp ule
       // i32, %a, i32_max). For the latter overdefined/empty range will be
       // inferred, but the branch will get folded accordingly anyways.
-      bool MayIncludeUndef = !isa<PredicateAssume>(PI);
+      bool MayIncludeUndef = false;// !isa<PredicateAssume>(PI);
 
       ValueLatticeElement CondVal = getValueState(OtherOp);
       ValueLatticeElement &IV = ValueState[&CB];
@@ -1321,6 +1323,7 @@ void SCCPInstVisitor::handleCallResult(CallBase &CB) {
           NewCR = CopyOfCR;
 
         addAdditionalUser(OtherOp, &CB);
+        MayIncludeUndef = false;
         mergeInValue(IV, &CB,
                      ValueLatticeElement::getRange(NewCR, MayIncludeUndef));
         return;

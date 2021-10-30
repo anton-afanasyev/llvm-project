@@ -6,8 +6,8 @@ define i64 @test1(i32 %x) {
 ; CHECK-NEXT:    [[C:%.*]] = icmp sgt i32 [[X:%.*]], 0
 ; CHECK-NEXT:    br i1 [[C]], label [[TRUE:%.*]], label [[FALSE:%.*]]
 ; CHECK:       true:
-; CHECK-NEXT:    [[EXT_1:%.*]] = sext i32 [[X]] to i64
-; CHECK-NEXT:    ret i64 [[EXT_1]]
+; CHECK-NEXT:    [[TMP1:%.*]] = zext i32 [[X]] to i64
+; CHECK-NEXT:    ret i64 [[TMP1]]
 ; CHECK:       false:
 ; CHECK-NEXT:    [[EXT_2:%.*]] = sext i32 [[X]] to i64
 ; CHECK-NEXT:    ret i64 [[EXT_2]]
@@ -29,8 +29,8 @@ define i64 @test2(i32 %x) {
 ; CHECK-NEXT:    [[C:%.*]] = icmp sge i32 [[X:%.*]], 0
 ; CHECK-NEXT:    br i1 [[C]], label [[TRUE:%.*]], label [[FALSE:%.*]]
 ; CHECK:       true:
-; CHECK-NEXT:    [[EXT_1:%.*]] = sext i32 [[X]] to i64
-; CHECK-NEXT:    ret i64 [[EXT_1]]
+; CHECK-NEXT:    [[TMP1:%.*]] = zext i32 [[X]] to i64
+; CHECK-NEXT:    ret i64 [[TMP1]]
 ; CHECK:       false:
 ; CHECK-NEXT:    [[EXT_2:%.*]] = sext i32 [[X]] to i64
 ; CHECK-NEXT:    ret i64 [[EXT_2]]
