@@ -66,6 +66,7 @@ static void getRelevantOperands(Instruction *I, SmallVectorImpl<Value *> &Ops) {
   case Instruction::AShr:
   case Instruction::UDiv:
   case Instruction::URem:
+  case Instruction::ICmp:
   case Instruction::InsertElement:
     Ops.push_back(I->getOperand(0));
     Ops.push_back(I->getOperand(1));
@@ -74,6 +75,8 @@ static void getRelevantOperands(Instruction *I, SmallVectorImpl<Value *> &Ops) {
     Ops.push_back(I->getOperand(0));
     break;
   case Instruction::Select:
+    if (isa<ICmpInst>(I->getOperand(0)))
+      Ops.push_back(I->getOperand(0));
     Ops.push_back(I->getOperand(1));
     Ops.push_back(I->getOperand(2));
     break;
@@ -145,6 +148,7 @@ bool TruncInstCombine::buildTruncExpressionGraph() {
     case Instruction::AShr:
     case Instruction::UDiv:
     case Instruction::URem:
+    case Instruction::ICmp:
     case Instruction::InsertElement:
     case Instruction::ExtractElement:
     case Instruction::Select: {
@@ -326,9 +330,18 @@ Type *TruncInstCombine::getBestTruncatedType() {
       if (MinBitWidth >= OrigBitWidth)
         return nullptr;
       Itr.second.MinBitWidth = MinBitWidth;
-    }
-    if (I->getOpcode() == Instruction::UDiv ||
+    } else if (I->getOpcode() == Instruction::UDiv ||
         I->getOpcode() == Instruction::URem) {
+      unsigned MinBitWidth = 0;
+      for (const auto &Op : I->operands()) {
+        KnownBits Known = computeKnownBits(Op);
+        MinBitWidth =
+            std::max(Known.getMaxValue().getActiveBits(), MinBitWidth);
+        if (MinBitWidth >= OrigBitWidth)
+          return nullptr;
+      }
+      Itr.second.MinBitWidth = MinBitWidth;
+    } else if (I->getOpcode() == Instruction::ICmp) {
       unsigned MinBitWidth = 0;
       for (const auto &Op : I->operands()) {
         KnownBits Known = computeKnownBits(Op);
@@ -444,6 +457,12 @@ void TruncInstCombine::ReduceExpressionGraph(Type *SclTy) {
           ResI->setIsExact(PEO->isExact());
       break;
     }
+    case Instruction::ICmp: {
+      Value *LHS = getReducedOperand(I->getOperand(0), SclTy);
+      Value *RHS = getReducedOperand(I->getOperand(1), SclTy);
+      Res = Builder.CreateICmp(cast<CmpInst>(I)->getPredicate(), LHS, RHS);
+      break;
+    }
     case Instruction::ExtractElement: {
       Value *Vec = getReducedOperand(I->getOperand(0), SclTy);
       Value *Idx = I->getOperand(1);
@@ -459,6 +478,8 @@ void TruncInstCombine::ReduceExpressionGraph(Type *SclTy) {
     }
     case Instruction::Select: {
       Value *Op0 = I->getOperand(0);
+      if (isa<ICmpInst>(Op0))
+        Op0 = getReducedOperand(Op0, SclTy);
       Value *LHS = getReducedOperand(I->getOperand(1), SclTy);
       Value *RHS = getReducedOperand(I->getOperand(2), SclTy);
       Res = Builder.CreateSelect(Op0, LHS, RHS);

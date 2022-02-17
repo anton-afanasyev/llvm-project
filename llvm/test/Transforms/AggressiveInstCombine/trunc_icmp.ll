@@ -4,12 +4,11 @@
 ; https://alive2.llvm.org/ce/z/dMeKfx
 define i16 @icmp_is_used_and_uses(i8 %in) {
 ; CHECK-LABEL: @icmp_is_used_and_uses(
-; CHECK-NEXT:    [[T5:%.*]] = zext i8 [[IN:%.*]] to i32
-; CHECK-NEXT:    [[T6:%.*]] = mul nuw nsw i32 [[T5]], 3
-; CHECK-NEXT:    [[T7:%.*]] = icmp ult i32 [[T6]], 255
-; CHECK-NEXT:    [[T8:%.*]] = select i1 [[T7]], i32 [[T6]], i32 255
-; CHECK-NEXT:    [[T9:%.*]] = trunc i32 [[T8]] to i16
-; CHECK-NEXT:    ret i16 [[T9]]
+; CHECK-NEXT:    [[T5:%.*]] = zext i8 [[IN:%.*]] to i16
+; CHECK-NEXT:    [[T6:%.*]] = mul i16 [[T5]], 3
+; CHECK-NEXT:    [[T7:%.*]] = icmp ult i16 [[T6]], 255
+; CHECK-NEXT:    [[T8:%.*]] = select i1 [[T7]], i16 [[T6]], i16 255
+; CHECK-NEXT:    ret i16 [[T8]]
 ;
   %t5 = zext i8 %in to i32
   %t6 = mul nuw nsw i32 %t5, 3
@@ -21,11 +20,12 @@ define i16 @icmp_is_used_and_uses(i8 %in) {
 
 define i16 @icmp_is_used_only(i8 %in, i32 %in2) {
 ; CHECK-LABEL: @icmp_is_used_only(
-; CHECK-NEXT:    [[T5:%.*]] = zext i8 [[IN:%.*]] to i16
-; CHECK-NEXT:    [[T6:%.*]] = mul i16 [[T5]], 3
+; CHECK-NEXT:    [[T5:%.*]] = zext i8 [[IN:%.*]] to i32
+; CHECK-NEXT:    [[T6:%.*]] = mul nuw nsw i32 [[T5]], 3
 ; CHECK-NEXT:    [[T7:%.*]] = icmp ult i32 [[IN2:%.*]], 255
-; CHECK-NEXT:    [[T8:%.*]] = select i1 [[T7]], i16 [[T6]], i16 255
-; CHECK-NEXT:    ret i16 [[T8]]
+; CHECK-NEXT:    [[T8:%.*]] = select i1 [[T7]], i32 [[T6]], i32 255
+; CHECK-NEXT:    [[T9:%.*]] = trunc i32 [[T8]] to i16
+; CHECK-NEXT:    ret i16 [[T9]]
 ;
   %t5 = zext i8 %in to i32
   %t6 = mul nuw nsw i32 %t5, 3
@@ -39,8 +39,8 @@ define i16 @icmp_is_used_only_and_zexted(i8 %in, i8 %in2) {
 ; CHECK-LABEL: @icmp_is_used_only_and_zexted(
 ; CHECK-NEXT:    [[T5:%.*]] = zext i8 [[IN:%.*]] to i16
 ; CHECK-NEXT:    [[T6:%.*]] = mul i16 [[T5]], 3
-; CHECK-NEXT:    [[IN22:%.*]] = zext i8 [[IN2:%.*]] to i32
-; CHECK-NEXT:    [[T7:%.*]] = icmp ult i32 [[IN22]], 255
+; CHECK-NEXT:    [[IN22:%.*]] = zext i8 [[IN2:%.*]] to i16
+; CHECK-NEXT:    [[T7:%.*]] = icmp ult i16 [[IN22]], 255
 ; CHECK-NEXT:    [[T8:%.*]] = select i1 [[T7]], i16 [[T6]], i16 255
 ; CHECK-NEXT:    ret i16 [[T8]]
 ;
@@ -55,12 +55,11 @@ define i16 @icmp_is_used_only_and_zexted(i8 %in, i8 %in2) {
 
 define i16 @icmp_is_used_and_uses_zext(i8 %in) {
 ; CHECK-LABEL: @icmp_is_used_and_uses_zext(
-; CHECK-NEXT:    [[T5:%.*]] = zext i8 [[IN:%.*]] to i32
-; CHECK-NEXT:    [[T6:%.*]] = mul nuw nsw i32 [[T5]], 3
-; CHECK-NEXT:    [[T7:%.*]] = icmp ult i32 [[T5]], 255
-; CHECK-NEXT:    [[T8:%.*]] = select i1 [[T7]], i32 [[T6]], i32 255
-; CHECK-NEXT:    [[T9:%.*]] = trunc i32 [[T8]] to i16
-; CHECK-NEXT:    ret i16 [[T9]]
+; CHECK-NEXT:    [[T5:%.*]] = zext i8 [[IN:%.*]] to i16
+; CHECK-NEXT:    [[T6:%.*]] = mul i16 [[T5]], 3
+; CHECK-NEXT:    [[T7:%.*]] = icmp ult i16 [[T5]], 255
+; CHECK-NEXT:    [[T8:%.*]] = select i1 [[T7]], i16 [[T6]], i16 255
+; CHECK-NEXT:    ret i16 [[T8]]
 ;
   %t5 = zext i8 %in to i32
   %t6 = mul nuw nsw i32 %t5, 3
