@@ -66,6 +66,7 @@ static void getRelevantOperands(Instruction *I, SmallVectorImpl<Value *> &Ops) {
   case Instruction::AShr:
   case Instruction::UDiv:
   case Instruction::URem:
+  case Instruction::ICmp:
   case Instruction::InsertElement:
     Ops.push_back(I->getOperand(0));
     Ops.push_back(I->getOperand(1));
@@ -145,6 +146,7 @@ bool TruncInstCombine::buildTruncExpressionGraph() {
     case Instruction::AShr:
     case Instruction::UDiv:
     case Instruction::URem:
+    case Instruction::ICmp:
     case Instruction::InsertElement:
     case Instruction::ExtractElement:
     case Instruction::Select: {
@@ -281,6 +283,13 @@ Type *TruncInstCombine::getBestTruncatedType() {
     for (auto *U : I->users())
       if (auto *UI = dyn_cast<Instruction>(U))
         if (UI != CurrentTruncInst && !InstInfoMap.count(UI)) {
+          if (auto *ICmpI = dyn_cast<ICmpInst>(UI))
+            if (all_of(ICmpI->users(), [&](User *UUI) {
+                  return InstInfoMap.count(cast<Instruction>(UUI));
+                })) {
+              InstInfoMap.insert(std::make_pair(ICmpI, Info()));
+              continue;
+            }
           if (!IsExtInst)
             return nullptr;
           // If this is an extension from the dest type, we can eliminate it,
@@ -326,9 +335,9 @@ Type *TruncInstCombine::getBestTruncatedType() {
       if (MinBitWidth >= OrigBitWidth)
         return nullptr;
       Itr.second.MinBitWidth = MinBitWidth;
-    }
-    if (I->getOpcode() == Instruction::UDiv ||
-        I->getOpcode() == Instruction::URem) {
+    } else if (I->getOpcode() == Instruction::UDiv ||
+               I->getOpcode() == Instruction::URem ||
+               I->getOpcode() == Instruction::ICmp) {
       unsigned MinBitWidth = 0;
       for (const auto &Op : I->operands()) {
         KnownBits Known = computeKnownBits(Op);
@@ -442,6 +451,12 @@ void TruncInstCombine::ReduceExpressionGraph(Type *SclTy) {
       if (auto *PEO = dyn_cast<PossiblyExactOperator>(I))
         if (auto *ResI = dyn_cast<Instruction>(Res))
           ResI->setIsExact(PEO->isExact());
+      break;
+    }
+    case Instruction::ICmp: {
+      Value *LHS = getReducedOperand(I->getOperand(0), SclTy);
+      Value *RHS = getReducedOperand(I->getOperand(1), SclTy);
+      Res = Builder.CreateICmp(cast<CmpInst>(I)->getPredicate(), LHS, RHS);
       break;
     }
     case Instruction::ExtractElement: {
