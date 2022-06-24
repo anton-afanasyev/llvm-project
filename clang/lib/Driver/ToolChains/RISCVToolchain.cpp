@@ -50,7 +50,17 @@ bool RISCVToolChain::hasGCCToolchain(const Driver &D,
 RISCVToolChain::RISCVToolChain(const Driver &D, const llvm::Triple &Triple,
                                const ArgList &Args)
     : Generic_ELF(D, Triple, Args) {
-  GCCInstallation.init(Triple, Args);
+
+  // Set alias for "riscv{64|32}-unknown-unknown-elf"
+  SmallVector<std::string, 1> TripleAliases;
+  if (Triple.isOSUnknown() &&
+      Triple.getVendor() == llvm::Triple::UnknownVendor &&
+      Triple.isOSBinFormatELF()) {
+    TripleAliases.push_back(Triple.isArch32Bit() ? "riscv32-unknown-elf"
+                                                 : "riscv64-unknown-elf");
+  }
+  GCCInstallation.init(Triple, Args, TripleAliases);
+
   if (GCCInstallation.isValid()) {
     Multilibs = GCCInstallation.getMultilibs();
     SelectedMultilib = GCCInstallation.getMultilib();
